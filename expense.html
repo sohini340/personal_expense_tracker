@@ -1,0 +1,819 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Financial Manager Pro | Expense Tracker</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    :root {
+      --primary: #2c3e50;
+      --secondary: #3498db;
+      --accent: #e74c3c;
+      --light: #ecf0f1;
+      --dark: #2c3e50;
+      --success: #2ecc71;
+      --warning: #f39c12;
+      --gray: #95a5a6;
+      --light-gray: #bdc3c7;
+      --bg-color: #f5f7fa;
+      --text-color: #333;
+      --card-bg: white;
+      --header-bg: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+      --border-color: var(--light-gray);
+    }
+    
+    .dark-mode {
+      --primary: #3498db;
+      --secondary: #2c3e50;
+      --bg-color: #1a1a2e;
+      --text-color: #ecf0f1;
+      --card-bg: #16213e;
+      --header-bg: linear-gradient(135deg, #16213e 0%, #1a1a2e 100%);
+      --border-color: #2c3e50;
+      --light: #2c3e50;
+      --gray: #7f8c8d;
+    }
+    
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+    
+    body {
+      background-color: var(--bg-color);
+      color: var(--text-color);
+      line-height: 1.6;
+      transition: background-color 0.3s ease, color 0.3s ease;
+    }
+    
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+    
+    header {
+      background: var(--header-bg);
+      color: white;
+      padding: 20px 0;
+      border-radius: 10px;
+      margin-bottom: 30px;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    }
+    
+    .header-content {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0 20px;
+    }
+    
+    .app-title {
+      font-size: 28px;
+      font-weight: 600;
+    }
+    
+    .app-controls {
+      display: flex;
+      gap: 15px;
+    }
+    
+    .btn {
+      padding: 10px 20px;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      font-weight: 500;
+      transition: all 0.3s ease;
+    }
+    
+    .btn-primary {
+      background-color: var(--secondary);
+      color: white;
+    }
+    
+    .btn-primary:hover {
+      background-color: #2980b9;
+      transform: translateY(-2px);
+    }
+    
+    .btn-outline {
+      background-color: transparent;
+      border: 1px solid white;
+      color: white;
+    }
+    
+    .btn-outline:hover {
+      background-color: rgba(255, 255, 255, 0.1);
+      transform: translateY(-2px);
+    }
+    
+    .toggle-theme {
+      background: transparent;
+      border: 1px solid white;
+      color: white;
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+    
+    .toggle-theme:hover {
+      background-color: rgba(255, 255, 255, 0.1);
+      transform: translateY(-2px);
+    }
+    
+    .dashboard {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+      margin-bottom: 30px;
+    }
+    
+    .card {
+      background: var(--card-bg);
+      border-radius: 10px;
+      padding: 20px;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+      transition: background-color 0.3s ease;
+    }
+    
+    .card-title {
+      font-size: 18px;
+      font-weight: 600;
+      margin-bottom: 15px;
+      color: var(--secondary);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    
+    .budget-display {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+    }
+    
+    .budget-amount {
+      font-size: 32px;
+      font-weight: 700;
+      color: var(--primary);
+    }
+    
+    .remaining-budget {
+      font-size: 18px;
+      padding: 10px 15px;
+      border-radius: 20px;
+      background-color: var(--light);
+      font-weight: 600;
+      transition: background-color 0.3s ease;
+    }
+    
+    .positive {
+      color: var(--success);
+    }
+    
+    .negative {
+      color: var(--accent);
+    }
+    
+    .budget-form {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 10px;
+    }
+    
+    .form-group {
+      margin-bottom: 15px;
+    }
+    
+    .form-group label {
+      display: block;
+      margin-bottom: 5px;
+      font-weight: 500;
+      color: var(--text-color);
+    }
+    
+    .form-control {
+      width: 100%;
+      padding: 12px 15px;
+      border: 1px solid var(--border-color);
+      border-radius: 5px;
+      font-size: 16px;
+      transition: border 0.3s ease;
+      background-color: var(--card-bg);
+      color: var(--text-color);
+    }
+    
+    .form-control:focus {
+      outline: none;
+      border-color: var(--secondary);
+    }
+    
+    .expense-form {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 15px;
+    }
+    
+    .expense-form .form-group:nth-child(1) {
+      grid-column: 1 / 3;
+    }
+    
+    .expense-form .form-group:nth-child(5) {
+      grid-column: 1 / 3;
+    }
+    
+    .expense-list {
+      max-height: 400px;
+      overflow-y: auto;
+    }
+    
+    .expense-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 15px;
+      border-bottom: 1px solid var(--border-color);
+      transition: background 0.3s ease;
+    }
+    
+    .expense-item:hover {
+      background-color: var(--light);
+    }
+    
+    .expense-info {
+      flex: 1;
+    }
+    
+    .expense-title {
+      font-weight: 600;
+      margin-bottom: 5px;
+    }
+    
+    .expense-details {
+      display: flex;
+      gap: 15px;
+      color: var(--gray);
+      font-size: 14px;
+    }
+    
+    .expense-amount {
+      font-weight: 700;
+      color: var(--accent);
+    }
+    
+    .expense-actions {
+      display: flex;
+      gap: 10px;
+    }
+    
+    .action-btn {
+      background: none;
+      border: none;
+      cursor: pointer;
+      color: var(--gray);
+      transition: color 0.3s ease, transform 0.3s ease;
+    }
+    
+    .action-btn:hover {
+      color: var(--secondary);
+      transform: scale(1.1);
+    }
+    
+    .delete-btn:hover {
+      color: var(--accent);
+    }
+    
+    .content-section {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+    }
+    
+    .chart-container {
+      position: relative;
+      height: 300px;
+    }
+    
+    .calendar {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      gap: 5px;
+    }
+    
+    .calendar-header {
+      grid-column: 1 / 8;
+      text-align: center;
+      padding: 10px;
+      background-color: var(--secondary);
+      color: white;
+      border-radius: 5px;
+      margin-bottom: 10px;
+    }
+    
+    .calendar-weekday {
+      text-align: center;
+      font-weight: 600;
+      color: var(--text-color);
+      padding: 5px;
+    }
+    
+    .calendar-day {
+      height: 40px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 5px;
+      cursor: pointer;
+      transition: background 0.3s ease;
+      background-color: var(--light);
+    }
+    
+    .calendar-day:hover {
+      background-color: var(--secondary);
+      color: white;
+    }
+    
+    .current-day {
+      background-color: var(--secondary);
+      color: white;
+    }
+    
+    .has-expense {
+      position: relative;
+    }
+    
+    .has-expense::after {
+      content: '';
+      position: absolute;
+      bottom: 5px;
+      width: 6px;
+      height: 6px;
+      background-color: var(--accent);
+      border-radius: 50%;
+    }
+    
+    .empty-state {
+      text-align: center;
+      padding: 30px;
+      color: var(--gray);
+    }
+    
+    .empty-state i {
+      font-size: 50px;
+      margin-bottom: 15px;
+      color: var(--light-gray);
+    }
+    
+    @media (max-width: 900px) {
+      .dashboard,
+      .content-section {
+        grid-template-columns: 1fr;
+      }
+      
+      .expense-form {
+        grid-template-columns: 1fr;
+      }
+      
+      .expense-form .form-group:nth-child(1),
+      .expense-form .form-group:nth-child(5) {
+        grid-column: 1;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <div class="header-content">
+        <h1 class="app-title"><i class="fas fa-wallet"></i> Financial Manager Pro</h1>
+        <div class="app-controls">
+          <button class="btn btn-outline" id="export-btn"><i class="fas fa-file-export"></i> Export</button>
+          <button class="toggle-theme" id="theme-toggle">
+            <i class="fas fa-moon"></i>
+          </button>
+        </div>
+      </div>
+    </header>
+    
+    <section class="dashboard">
+      <div class="card">
+        <h2 class="card-title"><i class="fas fa-chart-pie"></i> Budget Overview</h2>
+        <div class="budget-display">
+          <div class="budget-amount">₹<span id="total-budget">0.00</span></div>
+          <div class="remaining-budget">₹<span id="remaining-budget">0.00</span> <span id="budget-status">left</span></div>
+        </div>
+        <div class="budget-form">
+          <div class="form-group">
+            <input type="number" id="monthly-budget" class="form-control" placeholder="Enter monthly budget">
+          </div>
+          <button class="btn btn-primary" id="set-budget"><i class="fas fa-check"></i> Set Budget</button>
+        </div>
+      </div>
+      
+      <div class="card">
+        <h2 class="card-title"><i class="fas fa-receipt"></i> Add New Expense</h2>
+        <form id="expense-form">
+          <div class="expense-form">
+            <div class="form-group">
+              <input type="text" id="title" class="form-control" placeholder="Expense title" required>
+            </div>
+            <div class="form-group">
+              <input type="number" id="amount" class="form-control" placeholder="Amount" required step="0.01">
+            </div>
+            <div class="form-group">
+              <input type="number" id="quantity" class="form-control" placeholder="Quantity" value="1" min="1" required>
+            </div>
+            <div class="form-group">
+              <select id="category" class="form-control" required>
+                <option value="">Select category</option>
+                <option value="Food">Food</option>
+                <option value="Transport">Transport</option>
+                <option value="Entertainment">Entertainment</option>
+                <option value="Utilities">Utilities</option>
+                <option value="Shopping">Shopping</option>
+                <option value="Healthcare">Healthcare</option>
+                <option value="Other">Other</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <input type="date" id="date" class="form-control" required>
+            </div>
+            <div class="form-group">
+              <button type="submit" class="btn btn-primary" style="width: 100%">Add Expense</button>
+            </div>
+          </div>
+        </form>
+      </div>
+    </section>
+    
+    <section class="content-section">
+      <div class="card">
+        <h2 class="card-title"><i class="fas fa-list"></i> Recent Expenses</h2>
+        <div class="expense-list" id="expense-list">
+          <div class="empty-state">
+            <i class="fas fa-receipt"></i>
+            <p>No expenses recorded yet</p>
+          </div>
+        </div>
+      </div>
+      
+      <div class="card">
+        <h2 class="card-title"><i class="fas fa-chart-bar"></i> Expense Analysis</h2>
+        <div class="chart-container">
+          <canvas id="expense-chart"></canvas>
+        </div>
+      </div>
+    </section>
+    
+    <section class="content-section">
+      <div class="card">
+        <h2 class="card-title"><i class="fas fa-calendar"></i> Expense Calendar</h2>
+        <div class="calendar" id="calendar">
+          <!-- Calendar will be generated by JavaScript -->
+        </div>
+      </div>
+      
+      <div class="card">
+        <h2 class="card-title"><i class="fas fa-money-bill-wave"></i> Budget Progress</h2>
+        <div class="chart-container">
+          <canvas id="budget-chart"></canvas>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <script>
+    // Initialize data
+    let expenses = JSON.parse(localStorage.getItem("expenses")) || [];
+    let monthlyBudget = parseFloat(localStorage.getItem("monthlyBudget")) || 0;
+    let darkMode = localStorage.getItem("darkMode") === "true";
+    
+    // DOM Elements
+    const expenseForm = document.getElementById("expense-form");
+    const expenseList = document.getElementById("expense-list");
+    const totalBudgetEl = document.getElementById("total-budget");
+    const remainingBudgetEl = document.getElementById("remaining-budget");
+    const budgetStatusEl = document.getElementById("budget-status");
+    const monthlyBudgetInput = document.getElementById("monthly-budget");
+    const setBudgetBtn = document.getElementById("set-budget");
+    const dateInput = document.getElementById("date");
+    const exportBtn = document.getElementById("export-btn");
+    const themeToggle = document.getElementById("theme-toggle");
+    
+    // Set today's date as default for the date input
+    dateInput.valueAsDate = new Date();
+    
+    // Apply dark mode if enabled
+    if (darkMode) {
+      document.body.classList.add("dark-mode");
+      themeToggle.innerHTML = '<i class="fas fa-sun"></i>';
+    }
+    
+    // Initialize charts
+    const expenseChart = new Chart(document.getElementById('expense-chart'), {
+      type: 'doughnut',
+      data: {
+        labels: [],
+        datasets: [{
+          data: [],
+          backgroundColor: [
+            '#3498db', '#e74c3c', '#2ecc71', '#f39c12', '#9b59b6', '#1abc9c', '#34495e'
+          ]
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: {
+            position: 'right'
+          }
+        }
+      }
+    });
+    
+    const budgetChart = new Chart(document.getElementById('budget-chart'), {
+      type: 'bar',
+      data: {
+        labels: ['Budget', 'Spent', 'Remaining'],
+        datasets: [{
+          label: 'Amount',
+          data: [0, 0, 0],
+          backgroundColor: [
+            '#3498db',
+            '#e74c3c',
+            '#2ecc71'
+          ]
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        scales: {
+          y: {
+            beginAtZero: true
+          }
+        }
+      }
+    });
+    
+    // Set budget
+    setBudgetBtn.addEventListener('click', () => {
+      const budget = parseFloat(monthlyBudgetInput.value);
+      if (isNaN(budget) || budget < 0) {
+        alert('Please enter a valid budget amount');
+        return;
+      }
+      
+      monthlyBudget = budget;
+      localStorage.setItem("monthlyBudget", monthlyBudget);
+      monthlyBudgetInput.value = '';
+      updateUI();
+    });
+    
+    // Add expense
+    expenseForm.addEventListener('submit', (e) => {
+      e.preventDefault();
+      
+      const title = document.getElementById('title').value;
+      const amount = parseFloat(document.getElementById('amount').value);
+      const quantity = parseInt(document.getElementById('quantity').value) || 1;
+      const category = document.getElementById('category').value;
+      const date = document.getElementById('date').value;
+      
+      if (!title || isNaN(amount) || amount <= 0 || !category || !date) {
+        alert('Please fill all fields with valid values');
+        return;
+      }
+      
+      const totalAmount = amount * quantity;
+      
+      const expense = {
+        id: Date.now(),
+        title,
+        amount: totalAmount,
+        unitPrice: amount,
+        quantity,
+        category,
+        date
+      };
+      
+      expenses.push(expense);
+      saveExpenses();
+      updateUI();
+      expenseForm.reset();
+      document.getElementById('quantity').value = 1;
+      dateInput.valueAsDate = new Date();
+    });
+    
+    // Delete expense
+    function deleteExpense(id) {
+      if (confirm('Are you sure you want to delete this expense?')) {
+        expenses = expenses.filter(expense => expense.id !== id);
+        saveExpenses();
+        updateUI();
+      }
+    }
+    
+    // Export data
+    exportBtn.addEventListener('click', () => {
+      if (expenses.length === 0) {
+        alert('No expenses to export');
+        return;
+      }
+      
+      // Create CSV content
+      let csvContent = "Title,Amount,Quantity,Unit Price,Category,Date\n";
+      
+      expenses.forEach(expense => {
+        csvContent += `"${expense.title}",${expense.amount},${expense.quantity},${expense.unitPrice},"${expense.category}",${expense.date}\n`;
+      });
+      
+      // Create download link
+      const encodedUri = encodeURI("data:text/csv;charset=utf-8," + csvContent);
+      const link = document.createElement("a");
+      link.setAttribute("href", encodedUri);
+      link.setAttribute("download", "financial_manager_export.csv");
+      document.body.appendChild(link);
+      
+      // Trigger download
+      link.click();
+      document.body.removeChild(link);
+    });
+    
+    // Toggle theme
+    themeToggle.addEventListener('click', () => {
+      darkMode = !darkMode;
+      document.body.classList.toggle("dark-mode");
+      localStorage.setItem("darkMode", darkMode);
+      
+      if (darkMode) {
+        themeToggle.innerHTML = '<i class="fas fa-sun"></i>';
+      } else {
+        themeToggle.innerHTML = '<i class="fas fa-moon"></i>';
+      }
+      
+      // Update charts to reflect theme changes
+      updateCharts();
+    });
+    
+    // Save expenses to localStorage
+    function saveExpenses() {
+      localStorage.setItem("expenses", JSON.stringify(expenses));
+    }
+    
+    // Update the entire UI
+    function updateUI() {
+      updateBudgetDisplay();
+      updateExpenseList();
+      updateCharts();
+      generateCalendar();
+    }
+    
+    // Update budget display
+    function updateBudgetDisplay() {
+      totalBudgetEl.textContent = monthlyBudget.toFixed(2);
+      
+      const totalSpent = expenses.reduce((total, expense) => total + expense.amount, 0);
+      const remaining = monthlyBudget - totalSpent;
+      
+      remainingBudgetEl.textContent = Math.abs(remaining).toFixed(2);
+      
+      if (remaining >= 0) {
+        budgetStatusEl.textContent = 'left';
+        budgetStatusEl.className = 'positive';
+        remainingBudgetEl.className = 'positive';
+      } else {
+        budgetStatusEl.textContent = 'over budget';
+        budgetStatusEl.className = 'negative';
+        remainingBudgetEl.className = 'negative';
+      }
+    }
+    
+    // Update expense list
+    function updateExpenseList() {
+      if (expenses.length === 0) {
+        expenseList.innerHTML = `
+          <div class="empty-state">
+            <i class="fas fa-receipt"></i>
+            <p>No expenses recorded yet</p>
+          </div>
+        `;
+        return;
+      }
+      
+      // Sort expenses by date (newest first)
+      const sortedExpenses = [...expenses].sort((a, b) => new Date(b.date) - new Date(a.date));
+      
+      expenseList.innerHTML = sortedExpenses.map(expense => `
+        <div class="expense-item">
+          <div class="expense-info">
+            <div class="expense-title">${expense.title}</div>
+            <div class="expense-details">
+              <span>${expense.category}</span>
+              <span>${expense.quantity} × ₹${expense.unitPrice.toFixed(2)}</span>
+              <span>${new Date(expense.date).toLocaleDateString()}</span>
+            </div>
+          </div>
+          <div class="expense-amount">₹${expense.amount.toFixed(2)}</div>
+          <div class="expense-actions">
+            <button class="action-btn edit-btn" onclick="editExpense(${expense.id})">
+              <i class="fas fa-edit"></i>
+            </button>
+            <button class="action-btn delete-btn" onclick="deleteExpense(${expense.id})">
+              <i class="fas fa-trash"></i>
+            </button>
+          </div>
+        </div>
+      `).join('');
+    }
+    
+    // Update charts
+    function updateCharts() {
+      // Update expense chart by category
+      const categories = {};
+      expenses.forEach(expense => {
+        categories[expense.category] = (categories[expense.category] || 0) + expense.amount;
+      });
+      
+      expenseChart.data.labels = Object.keys(categories);
+      expenseChart.data.datasets[0].data = Object.values(categories);
+      expenseChart.update();
+      
+      // Update budget chart
+      const totalSpent = expenses.reduce((total, expense) => total + expense.amount, 0);
+      const remaining = Math.max(0, monthlyBudget - totalSpent);
+      
+      budgetChart.data.datasets[0].data = [monthlyBudget, totalSpent, remaining];
+      budgetChart.update();
+    }
+    
+    // Generate calendar
+    function generateCalendar() {
+      const calendarEl = document.getElementById('calendar');
+      const today = new Date();
+      const currentMonth = today.getMonth();
+      const currentYear = today.getFullYear();
+      
+      // Get first day of month and number of days
+      const firstDay = new Date(currentYear, currentMonth, 1);
+      const lastDay = new Date(currentYear, currentMonth + 1, 0);
+      const daysInMonth = lastDay.getDate();
+      
+      // Calendar header
+      const monthNames = ["January", "February", "March", "April", "May", "June",
+        "July", "August", "September", "October", "November", "December"
+      ];
+      
+      let calendarHTML = `
+        <div class="calendar-header">${monthNames[currentMonth]} ${currentYear}</div>
+      `;
+      
+      // Weekday headers
+      const weekdays = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+      weekdays.forEach(day => {
+        calendarHTML += `<div class="calendar-weekday">${day}</div>`;
+      });
+      
+      // Empty cells before first day of month
+      for (let i = 0; i < firstDay.getDay(); i++) {
+        calendarHTML += `<div class="calendar-day"></div>`;
+      }
+      
+      // Days of the month
+      for (let day = 1; day <= daysInMonth; day++) {
+        const dateStr = `${currentYear}-${String(currentMonth + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+        const hasExpense = expenses.some(expense => expense.date === dateStr);
+        const isToday = today.getDate() === day && today.getMonth() === currentMonth;
+        
+        calendarHTML += `
+          <div class="calendar-day ${isToday ? 'current-day' : ''} ${hasExpense ? 'has-expense' : ''}">
+            ${day}
+          </div>
+        `;
+      }
+      
+      calendarEl.innerHTML = calendarHTML;
+    }
+    
+    // Edit expense (placeholder function)
+    function editExpense(id) {
+      alert('Edit functionality would be implemented here. Expense ID: ' + id);
+    }
+    
+    // Initialize the UI
+    updateUI();
+  </script>
+</body>
+</html>
